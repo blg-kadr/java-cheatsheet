@@ -1,124 +1,272 @@
-# Java Backend Engineering Cheatsheet
+# Comprehensive Java Backend Engineering Cheatsheet
 
-## Basic Java Concepts
-- **Variables and Data Types**: Primitive types (int, boolean, etc.), reference types (String, Arrays).
-- **Control Structures**: if, switch, loops (for, while).
-- **Object-Oriented Programming**: Classes, Objects, Inheritance, Polymorphism, Encapsulation.
-- **Java Collections**: List, Set, Map. Lists can be iterated over using `for-each` or Streams.
+## 1. Basic Java
 
-## Spring Boot
-- **Getting Started**: Use Spring Initializr to bootstrap a Spring Boot application.
-  ```java
-  @SpringBootApplication
-  public class Application {
-      public static void main(String[] args) {
-          SpringApplication.run(Application.class, args);
-      }
-  }
-  ```
-- **Configuration**: Use `application.properties` or `application.yml` to set properties.
+### Variables
+```java
+int number = 10;
+String message = "Hello, World!";
+```
 
-## Spring Data JPA
-- **Entities**: Define entities with `@Entity` annotation.
-  ```java
-  @Entity
-  public class User {
-      @Id
-      @GeneratedValue(strategy = GenerationType.IDENTITY)
-      private Long id;
-      private String name;
-  }
-  ```
-- **Repositories**: Extend `JpaRepository`.
-  ```java
-  public interface UserRepository extends JpaRepository<User, Long> {}
-  ```
+### Control Flow
+```java
+if (number > 5) {
+    System.out.println("Number is greater than 5");
+} else {
+    System.out.println("Number is 5 or less");
+}
+```
 
-## REST API Development
-- **Creating REST Controllers**: Use `@RestController` and map methods with `@GetMapping`, `@PostMapping`.
-  ```java
-  @RestController
-  @RequestMapping("/api/users")
-  public class UserController {
-      @GetMapping
-      public List<User> getAllUsers() {
-          return userService.findAll();
-      }
-  }
-  ```
-- **Response Entity**: Use `ResponseEntity` to customize HTTP responses.
+### OOP
+```java
+class Animal {
+    void sound() {
+        System.out.println("Animal makes a sound");
+    }
+}
 
-## Security
-- **Authentication**: Use Spring Security to secure endpoints.
-- **JWT**: Implement JWT for stateless authentication.
+class Dog extends Animal {
+    void sound() {
+        System.out.println("Bark");
+    }
+}
+```
 
-## Testing
-- **Unit Testing**: Use JUnit for unit tests.
-  ```java
-  @SpringBootTest
-  public class UserServiceTest {
-      @Test
-      public void testFindAllUsers() {
-          List<User> users = userService.findAll();
-          assertNotNull(users);
-      }
-  }
-  ```
+## 2. Spring Boot Fundamentals
 
-## DTOs (Data Transfer Objects)
-- Use DTOs to transfer data and avoid exposing entities directly.
+### Dependency Injection
+```java
+@Service
+public class MyService {
+    @Autowired
+    private MyRepository myRepository;
+}
+```
 
-## Validation
-- Use `@Valid` and `@NotNull` annotations for validation.
+### Configuration
+```properties
+# application.properties
+spring.datasource.url=jdbc:mysql://localhost:3306/mydb
+spring.datasource.username=root
+spring.datasource.password=pass
+```
 
-## Exception Handling
-- Customize exception handling via `@ControllerAdvice`.
-  ```java
-  @ControllerAdvice
-  public class GlobalExceptionHandler {
-      @ExceptionHandler(ResourceNotFoundException.class)
-      public ResponseEntity<Object> handleNotFound(ResourceNotFoundException ex) {
-          return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-      }
-  }
-  ```
+### Profiles
+```java
+@Profile("dev")
+@Component
+public class DevConfig {...}
+```
 
-## Collections
-- Learn how to efficiently use collections and their methods.
+## 3. REST API Development
 
-## Streams
-- Utilize Java Streams to streamline data processing.
-  ```java
-  List<String> userNames = users.stream()
-      .map(User::getName)
-      .collect(Collectors.toList());
-  ```
+### Controller Examples
+```java
+@RestController
+@RequestMapping("/api")
+public class MyController {
+    @GetMapping("/items/{id}")
+    public ResponseEntity<Item> getItem(@PathVariable Long id) {
+        return ResponseEntity.ok(itemService.findById(id));
+    }
 
-## Design Patterns
-- Familiarize yourself with Singleton, Factory, and Observer patterns.
+    @PostMapping("/items")
+    public ResponseEntity<Item> createItem(@RequestBody Item item) {
+        return ResponseEntity.created(...).body(itemService.save(item));
+    }
+}
+```
 
-## Logging
-- Use SLF4J with Logback for logging.
-  ```java
-  @Slf4j
-  public class UserService {
-      public void createUser(User user) {
-          log.info("Creating user: {}", user);
-      }
-  }
-  ```
+## 4. Spring Data JPA
 
-## Pagination
-- Implement pagination in Spring Data JPA with `Pageable`.
-- Example: `Page<User> users = userRepository.findAll(PageRequest.of(page, size));`
+### Entity Definitions
+```java
+@Entity
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String name;
 
-## Async Processing
-- Use `@Async` for asynchronous methods.
+    @OneToMany(mappedBy = "user")
+    private List<Order> orders;
+}
+```
 
-## Caching
-- Implement caching using annotations `@Cacheable`, `@CachePut`, and `@CacheEvict`.
+### Repository Patterns
+```java
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
+    List<User> findByName(String name);
+}
+```
 
-## Best Practices
+## 5. DTOs and Mapping
+
+### DTO Pattern
+```java
+public class UserDTO {
+    private Long id;
+    private String name;
+}
+```
+
+### Manual Mapping
+```java
+User user = userRepository.findById(id);
+UserDTO userDTO = new UserDTO();
+userDTO.setId(user.getId());
+userDTO.setName(user.getName());
+```
+
+### Using MapStruct
+```java
+@Mapper
+public interface UserMapper {
+    UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
+    UserDTO userToUserDTO(User user);
+}
+```
+
+## 6. Validation
+
+### Annotations
+```java
+public class User {
+    @NotNull
+    private String name;
+
+    @Email
+    private String email;
+}
+```
+
+## 7. Exception Handling
+
+### Global Error Handling
+```java
+@ControllerAdvice
+public class GlobalExceptionHandler {
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<String> handleCustomException(CustomException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+}
+```
+
+## 8. Collections and Streams
+
+### List Example
+```java
+List<String> names = Arrays.asList("Alice", "Bob", "Charlie");
+```
+
+### Stream API
+```java
+List<String> filtered = names.stream()
+    .filter(name -> name.startsWith("A"))
+    .collect(Collectors.toList());
+```
+
+## 9. Spring Security
+
+### Security Configuration
+```java
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.authorizeRequests()
+            .anyRequest().authenticated()
+            .and().httpBasic();
+    }
+}
+```
+
+### JWT Authentication
+```java
+public class JwtTokenUtil {...}
+```
+
+## 10. Testing
+
+### JUnit 5
+```java
+@SpringBootTest
+public class MyServiceTests {...}
+```
+
+### Mockito Example
+```java
+@Mock
+private MyRepository myRepository;
+```
+
+## 11. Advanced Patterns
+
+### Builder Pattern
+```java
+class User {
+    private final String name;
+    private final int age;
+
+    public static class Builder {
+        private String name;
+        private int age;
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder age(int age) {
+            this.age = age;
+            return this;
+        }
+
+        public User build() {
+            return new User(this);
+        }
+    }
+}
+```
+
+## 12. Logging
+
+### SLF4J Examples
+```java
+private static final Logger logger = LoggerFactory.getLogger(MyClass.class);
+logger.info("Log message");
+```
+
+## 13. Pagination and Sorting
+
+### Using Pageable
+```java
+Pageable pageable = PageRequest.of(0, 10);
+Page<User> users = userRepository.findAll(pageable);
+```
+
+## 14. Async Processing
+
+```java
+@Async
+public CompletableFuture<String> asyncMethod() {...}
+```
+
+## 15. Caching
+
+```java
+@Cacheable("users")
+public User getUser(Long id) {...}
+```
+
+## 16. Best Practices
+
 - Follow SOLID principles.
-- Write clean and maintainable code.
-- Use proper error handling and logging practices.
+- Keep code clean and maintainable.
+- Use meaningful variable names.
+
+---
+
+This cheatsheet provides a quick reference for essential Java backend engineering concepts and practices, ensuring developers can build robust applications with Spring Boot and related technologies effectively.
