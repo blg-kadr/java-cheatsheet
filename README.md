@@ -1,122 +1,124 @@
-# Java Cheatsheet
+# Java Backend Engineering Cheatsheet
 
-## Introduction  
-This cheatsheet is designed for backend engineering with Java and highlights core concepts especially using Spring Boot.
+## Basic Java Concepts
+- **Variables and Data Types**: Primitive types (int, boolean, etc.), reference types (String, Arrays).
+- **Control Structures**: if, switch, loops (for, while).
+- **Object-Oriented Programming**: Classes, Objects, Inheritance, Polymorphism, Encapsulation.
+- **Java Collections**: List, Set, Map. Lists can be iterated over using `for-each` or Streams.
 
-## Basic Java  
-- **Variables**: Used to store data.
-- **Control Statements**: if, switch, loops to control flow.
-- **OOP Concepts**: Classes, Inheritance, Polymorphism.
+## Spring Boot
+- **Getting Started**: Use Spring Initializr to bootstrap a Spring Boot application.
+  ```java
+  @SpringBootApplication
+  public class Application {
+      public static void main(String[] args) {
+          SpringApplication.run(Application.class, args);
+      }
+  }
+  ```
+- **Configuration**: Use `application.properties` or `application.yml` to set properties.
 
-## Spring Boot & Dependency Injection  
-Spring Boot simplifies dependency injection. Here's an example:
-```java
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+## Spring Data JPA
+- **Entities**: Define entities with `@Entity` annotation.
+  ```java
+  @Entity
+  public class User {
+      @Id
+      @GeneratedValue(strategy = GenerationType.IDENTITY)
+      private Long id;
+      private String name;
+  }
+  ```
+- **Repositories**: Extend `JpaRepository`.
+  ```java
+  public interface UserRepository extends JpaRepository<User, Long> {}
+  ```
 
-@SpringBootApplication
-public class Application {
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
-    }
-}
-```
+## REST API Development
+- **Creating REST Controllers**: Use `@RestController` and map methods with `@GetMapping`, `@PostMapping`.
+  ```java
+  @RestController
+  @RequestMapping("/api/users")
+  public class UserController {
+      @GetMapping
+      public List<User> getAllUsers() {
+          return userService.findAll();
+      }
+  }
+  ```
+- **Response Entity**: Use `ResponseEntity` to customize HTTP responses.
 
-## REST API Development  
-To create a REST API:
-```java
-import org.springframework.web.bind.annotation.*;
+## Security
+- **Authentication**: Use Spring Security to secure endpoints.
+- **JWT**: Implement JWT for stateless authentication.
 
-@RestController
-@RequestMapping("/api")
-public class MyController {
-    @GetMapping("/hello")
-    public String hello() {
-        return "Hello, World!";
-    }
-}
-```
+## Testing
+- **Unit Testing**: Use JUnit for unit tests.
+  ```java
+  @SpringBootTest
+  public class UserServiceTest {
+      @Test
+      public void testFindAllUsers() {
+          List<User> users = userService.findAll();
+          assertNotNull(users);
+      }
+  }
+  ```
 
-## Spring Data JPA & Database  
-JPA manages data persistence. Here's how to define an entity:
-```java
-import javax.persistence.*;
+## DTOs (Data Transfer Objects)
+- Use DTOs to transfer data and avoid exposing entities directly.
 
-@Entity
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String name;
-}
-```
+## Validation
+- Use `@Valid` and `@NotNull` annotations for validation.
 
-### Entity Relationships  
-```java
-@Entity
-public class Post {
-    @ManyToOne
-    private User author;
-}
-```
+## Exception Handling
+- Customize exception handling via `@ControllerAdvice`.
+  ```java
+  @ControllerAdvice
+  public class GlobalExceptionHandler {
+      @ExceptionHandler(ResourceNotFoundException.class)
+      public ResponseEntity<Object> handleNotFound(ResourceNotFoundException ex) {
+          return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+      }
+  }
+  ```
 
-### Transactions  
-```java
-import org.springframework.transaction.annotation.Transactional;
+## Collections
+- Learn how to efficiently use collections and their methods.
 
-@Transactional
-public void createPost(Post post) {
-    // save logic
-}
-```
+## Streams
+- Utilize Java Streams to streamline data processing.
+  ```java
+  List<String> userNames = users.stream()
+      .map(User::getName)
+      .collect(Collectors.toList());
+  ```
 
-## DTOs & Mappers  
-Data Transfer Objects (DTOs) are used to transfer data. You typically create a mapper to convert between Entity and DTO.
+## Design Patterns
+- Familiarize yourself with Singleton, Factory, and Observer patterns.
 
-## Validation & Exception Handling  
-Use annotations like `@Valid` for validation. Handle exceptions with `@ControllerAdvice`.
+## Logging
+- Use SLF4J with Logback for logging.
+  ```java
+  @Slf4j
+  public class UserService {
+      public void createUser(User user) {
+          log.info("Creating user: {}", user);
+      }
+  }
+  ```
 
-## Spring Security & JWT  
-Spring Security helps in securing APIs. Here's a basic configuration:
-```java
-@EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http
-            .csrf().disable()
-            .authorizeRequests()
-            .anyRequest().authenticated();
-    }
-}
-```
+## Pagination
+- Implement pagination in Spring Data JPA with `Pageable`.
+- Example: `Page<User> users = userRepository.findAll(PageRequest.of(page, size));`
 
-## Layered Architecture Patterns  
-Use layers for organization: Controller, Service, Repository.
+## Async Processing
+- Use `@Async` for asynchronous methods.
 
-## Testing with JUnit & Mockito  
-```java
-import static org.mockito.Mockito.*;
-import org.junit.jupiter.api.Test;
+## Caching
+- Implement caching using annotations `@Cacheable`, `@CachePut`, and `@CacheEvict`.
 
-public class MyServiceTest {
-    @Test
-    public void testService() {
-        MyService service = mock(MyService.class);
-        when(service.doSomething()).thenReturn("result");
-    }
-}
-```
-
-## Gradle Multi-module Projects  
-Essentials of structuring Gradle projects into modules.
-
-## Docker & Deployment  
-Leveraging Docker to containerize Spring applications.
-
-## Best Practices  
+## Best Practices
 - Follow SOLID principles.
-- Use version control for your projects.
-- Write meaningful tests.
+- Write clean and maintainable code.
+- Use proper error handling and logging practices.
