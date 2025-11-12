@@ -270,3 +270,11 @@ public User getUser(Long id) {...}
 ---
 
 This cheatsheet provides a quick reference for essential Java backend engineering concepts and practices, ensuring developers can build robust applications with Spring Boot and related technologies effectively.
+
+
+
+Some useful references
+https://introcs.cs.princeton.edu/java/11cheatsheet/?utm_source=chatgpt.com
+[@blg-kadr/Java-Cheatsheet-fork](https://yungnickyoung.github.io/Java-Cheatsheet/)
+https://cheatography.com/lucamazzza/cheat-sheets/java17/pdf/?last=1696235600
+https://www.baeldung.com/java-collections?utm_source=chatgpt.com
